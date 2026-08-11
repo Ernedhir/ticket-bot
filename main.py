@@ -5,13 +5,13 @@ from discord.ext import commands
 from discord.errors import Forbidden
 from discord import app_commands
 
-IEEM = 693193721612861511
+GUILD_ID = int(settings.GUILD_ID)
 
 def run():
     intents = discord.Intents.all()
     intents.message_content = True
     intents.members = True
-    activity = discord.Activity(type=discord.ActivityType.playing, name='Testing')
+    activity = discord.Activity(type=discord.ActivityType.playing, name='Work in Progress!')
     bot = commands.Bot(
         command_prefix='.',
         intents=intents,
@@ -30,6 +30,17 @@ def run():
             if cog_file.name != "__init__.py":
                 await bot.load_extension(f"cogs.{cog_file.name[:-3]}")
                 print(f"{cog_file.name[:-3]} loaded!")
+        try:
+            synced1guild = bot.get_guild(GUILD_ID)
+            synced1 = await bot.tree.sync(guild=discord.Object(id=GUILD_ID))
+            list1 = []
+            for comm in synced1:
+                list1.append(comm.name)
+            print(f"Synced {str(list1)[1:-1]} ({len(synced1)}) slash commands in {synced1guild.name}")
+        except Exception as e:
+            print(f"Failed to sync slash commands: {e}")
+            raise e
+        print(f"Logged in as {bot.user}")
 
     @bot.command()
     async def ping(ctx):
